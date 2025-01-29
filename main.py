@@ -10,7 +10,9 @@ hotels = [
 ]
 
 
-@app.get("/hotels")
+@app.get("/hotels",
+         summary="Получить список отелей",
+         )
 def get_hotels(
         id: int | None = Query(None, description="Айдишник:"),
         title: str | None = Query(None, description="Название отеля:"),
@@ -25,7 +27,9 @@ def get_hotels(
     return hotels_
 
 
-@app.post("/hotels")
+@app.post("/hotels",
+          summary="Добавить отель",
+          )
 def create_hotel(
         title: str = Body(embed=True),
 
@@ -38,7 +42,9 @@ def create_hotel(
     return {"status": "OK"}
 
 
-@app.put("/hotels/{hotel_id}")
+@app.put("/hotels/{hotel_id}",
+         summary="Изменить данные об отеле",
+         )
 def put_hotel(
         hotel_id: int,
         title: str = Body(embed=True),
@@ -50,7 +56,10 @@ def put_hotel(
     return {"status": "OK"}
 
 
-@app.patch("/hotels/{hotel_id}")
+@app.patch("/hotels/{hotel_id}",
+           summary="Частично изменить данные об отеле",
+           description="<h1>Тут мы можем частично поменять данные об отеле: отправит либо name, либо title</h1>"
+           )
 def patch_hotel(
         hotel_id: int,
         title: str | None = Body(None, embed=True),
@@ -65,14 +74,18 @@ def patch_hotel(
 
 
 
-@app.delete("/hotels/{hotel_id}")
+@app.delete("/hotels/{hotel_id}",
+            summary="Удалить отель",
+            )
 def delete_hotel(hotel_id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
     return {"status": "OK"}
 
 
-@app.get("/")
+@app.get("/",
+         summary="Тест",
+         )
 def func():
     return "Hello World!!!!!"
 
