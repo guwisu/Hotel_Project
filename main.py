@@ -4,7 +4,7 @@ import uvicorn
 
 from hotels import router as router_hotels
 
-app = FastAPI(docs_url=None, tags=["Отели"])
+app = FastAPI(docs_url=None)
 
 app.include_router(router_hotels)
 
