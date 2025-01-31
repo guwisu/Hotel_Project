@@ -1,4 +1,6 @@
 from fastapi import Query, Body, APIRouter
+
+from dependencies import PaginationDep
 from schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix="/hotels")
@@ -14,14 +16,11 @@ hotels = [
 ]
 
 
-@router.get("",
-         summary="Получить список отелей",
-         )
+@router.get("", summary="Получить список отелей",)
 def get_hotels(
+        pagination: PaginationDep,
         id: int | None = Query(None, description="Айдишник:"),
         title: str | None = Query(None, description="Название отеля:"),
-        page: int | None = Query(None),
-        per_page: int | None = Query(None),
 ):
     hotels_ = []
     for hotel in hotels:
@@ -31,14 +30,12 @@ def get_hotels(
             continue
         hotels_.append(hotel)
 
-    if page and per_page:
-        return hotels_[per_page * (page - 1):][:per_page]
+    if pagination.page and pagination.per_page:
+        return hotels_[pagination.per_page * (pagination.page - 1):][:pagination.per_page]
     return hotels_
 
 
-@router.post("",
-          summary="Добавить отель",
-          )
+@router.post("", summary="Добавить отель",)
 def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     "1": {"summary": "Сочи", "value": {
         "title": "Отель Сочи 5 звезд у моря",
@@ -59,9 +56,7 @@ def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     return {"status": "OK"}
 
 
-@router.delete("/{hotel_id}",
-            summary="Удалить отель",
-            )
+@router.delete("/{hotel_id}", summary="Удалить отель",)
 def delete_hotel(hotel_id: int):
     global hotels
     hotels = [hotel for hotel in hotels if hotel["id"] != hotel_id]
@@ -84,9 +79,7 @@ def patch_hotel(
     return {"status": "OK"}
 
 
-@router.put("/{hotel_id}",
-         summary="Изменить данные об отеле",
-         )
+@router.put("/{hotel_id}", summary="Изменить данные об отеле")
 def put_hotel(hotel_id: int, hotel_data: Hotel,):
     global hotels
     hotels[hotel_id - 1]["title"] = hotel_data.title
