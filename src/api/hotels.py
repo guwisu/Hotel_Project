@@ -1,7 +1,7 @@
 from fastapi import Query, Body, APIRouter
 
-from dependencies import PaginationDep
-from schemas.hotels import Hotel, HotelPATCH
+from src.api.dependencies import PaginationDep
+from src.schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix="/hotels")
 
@@ -67,21 +67,20 @@ def delete_hotel(hotel_id: int):
            summary="Частично изменить данные об отеле",
            description="<h1>Тут мы можем частично поменять данные об отеле: отправит либо name, либо title</h1>"
            )
-def patch_hotel(
-        hotel_id: int,
-        hotel_data: HotelPATCH,
-):
+def patch_hotel(hotel_id: int, hotel_data: HotelPATCH):
     global hotels
+    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
     if hotel_data.title:
-        hotels[hotel_id - 1]["title"] = hotel_data.title
+        hotel["title"] = hotel_data.title
     if hotel_data.name:
-        hotels[hotel_id - 1]["name"] = hotel_data.name
+        hotel["name"] = hotel_data.name
     return {"status": "OK"}
 
 
 @router.put("/{hotel_id}", summary="Изменить данные об отеле")
-def put_hotel(hotel_id: int, hotel_data: Hotel,):
+def put_hotel(hotel_id: int, hotel_data: Hotel):
     global hotels
-    hotels[hotel_id - 1]["title"] = hotel_data.title
-    hotels[hotel_id - 1]["name"] = hotel_data.name
+    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
+    hotel["title"] = hotel_data.title
+    hotel["name"] = hotel_data.name
     return {"status": "OK"}
