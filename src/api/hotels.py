@@ -5,6 +5,7 @@ from sqlalchemy import insert, select
 from src.api.dependencies import PaginationDep
 from src.database import async_session_maker, engine
 from src.models.hotels import HotelsOrm
+from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import Hotel, HotelPATCH
 
 router = APIRouter(prefix="/hotels")
@@ -26,23 +27,14 @@ async def get_hotels(
         location: str | None = Query(None, description="Адрес отеля:"),
         title: str | None = Query(None, description="Название отеля:"),
 ):
-    # per_page = pagination.per_page or 5
+    per_page = pagination.per_page or 5
     async with async_session_maker() as session:
-        query = select(HotelsOrm)
-        if title:
-            query = query.filter(HotelsOrm.title.ilike(f"%{title}%"))
-        if location:
-            query = query.filter(HotelsOrm.location.ilike(f"%{location}%"))
-        query = (
-            query
-            .limit(pagination.per_page)
-            .offset(pagination.per_page * (pagination.page - 1))
+        return await HotelsRepository(session).get_all(
+            location=location,
+            title=title,
+            limit=per_page,
+            offset=per_page * (pagination.page - 1)
         )
-        result = await session.execute(query)
-        hotels = result.scalars().all()
-        return hotels
-    # if pagination.page and pagination.per_page:
-    #     return hotels_[pagination.per_page * (pagination.page - 1):][:pagination.per_page]
 
 
 @router.post("", summary="Добавить отель",)
@@ -58,11 +50,9 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
 })
 ):
     async with async_session_maker() as session:
-        add_hotel_stmt = insert(HotelsOrm).values(**hotel_data.model_dump())
-        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True},))
-        await session.execute(add_hotel_stmt)
+        hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
-    return {"status": "OK"}
+    return {"status": "OK", "data": hotel}
 
 
 @router.delete("/{hotel_id}", summary="Удалить отель",)
@@ -93,3 +83,8 @@ def put_hotel(hotel_id: int, hotel_data: Hotel):
     hotel["title"] = hotel_data.title
     hotel["name"] = hotel_data.name
     return {"status": "OK"}
+
+
+
+
+
