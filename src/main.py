@@ -4,11 +4,10 @@ import uvicorn
 
 import sys
 from pathlib import Path
-
-sys.path.append(str(Path(__file__).parent.parent))
-
 from src.api.hotels import router as router_hotels
 
+
+sys.path.append(str(Path(__file__).parent.parent))
 
 app = FastAPI(docs_url=None)
 

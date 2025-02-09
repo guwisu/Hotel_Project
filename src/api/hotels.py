@@ -37,6 +37,13 @@ async def get_hotels(
         )
 
 
+@router.get("/{hotel_id}", summary="Получение отеля по айдишнику")
+async def get_hotel(hotel_id: int):
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).get_one_or_none(id=hotel_id)
+    return hotel
+
+
 @router.post("", summary="Добавить отель",)
 async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
     "1": {"summary": "Сочи", "value": {
@@ -58,7 +65,7 @@ async def create_hotel(hotel_data: Hotel = Body(openapi_examples={
 @router.delete("/{hotel_id}", summary="Удалить отель",)
 async def delete_hotel(hotel_id: int):
     async with async_session_maker() as session:
-        await HotelsRepository(session).delete(hotel_id)
+        await HotelsRepository(session).delete(id=hotel_id)
         await session.commit()
     return {"status": "OK"}
 
@@ -67,20 +74,17 @@ async def delete_hotel(hotel_id: int):
            summary="Частично изменить данные об отеле",
            description="<h1>Тут мы можем частично поменять данные об отеле: отправит либо name, либо title</h1>"
            )
-def patch_hotel(hotel_id: int, hotel_data: HotelPATCH):
-    global hotels
-    hotel = [hotel for hotel in hotels if hotel["id"] == hotel_id][0]
-    if hotel_data.title:
-        hotel["title"] = hotel_data.title
-    if hotel_data.name:
-        hotel["name"] = hotel_data.name
+async def patch_hotel(hotel_id: int, hotel_data: HotelPATCH):
+    async with async_session_maker() as session:
+        await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
+        await session.commit()
     return {"status": "OK"}
 
 
 @router.put("/{hotel_id}", summary="Изменить данные об отеле")
-async def put_hotel(hotel_id: int, hotel_data: Hotel):
+async def edit_hotel(hotel_id: int, hotel_data: Hotel):
     async with async_session_maker() as session:
-        await HotelsRepository(session).edit(hotel_data, hotel_id)
+        await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         await session.commit()
     return {"status": "OK"}
 
