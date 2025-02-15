@@ -1,7 +1,5 @@
-from sqlalchemy import select, insert, delete, update
+from sqlalchemy import select, insert, update, delete
 from pydantic import BaseModel
-
-from src.schemas.hotels import Hotel
 
 
 class BaseRepository:
@@ -22,19 +20,15 @@ class BaseRepository:
         model = result.scalars().one_or_none()
         if model is None:
             return None
-        return Hotel.model_validate(model)
+        return self.schema.model_validate(model)
 
     async def add(self, data: BaseModel):
-        add_data_stmt = (
-            insert(self.model)
-            .values(**data.model_dump())
-            .returning(self.model)
-        )
+        add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
         result = await self.session.execute(add_data_stmt)
         model = result.scalars().one()
-        return Hotel.model_validate(model)
+        return self.schema.model_validate(model)
 
-    async def edit(self, data: BaseModel,exclude_unset=False, **filter_by) -> None:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
         update_stmt = (
             update(self.model)
             .filter_by(**filter_by)
@@ -45,6 +39,3 @@ class BaseRepository:
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_stmt)
-
-
-

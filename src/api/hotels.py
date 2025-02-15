@@ -8,7 +8,7 @@ from src.models.hotels import HotelsOrm
 from src.repositories.hotels import HotelsRepository
 from src.schemas.hotels import Hotel, HotelPATCH, HotelAdd
 
-router = APIRouter(prefix="/hotels")
+router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 hotels = [
     {"id": 1, "title": "Sochi", "name": "sochi"},
