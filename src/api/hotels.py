@@ -1,12 +1,9 @@
 from fastapi import Query, Body, APIRouter
 
-from sqlalchemy import insert, select
-
 from src.api.dependencies import PaginationDep
-from src.database import async_session_maker, engine
-from src.models.hotels import HotelsOrm
+from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
-from src.schemas.hotels import Hotel, HotelPATCH, HotelAdd
+from src.schemas.hotels import HotelPatch, HotelAdd
 
 router = APIRouter(prefix="/hotels", tags=["Отели"])
 
@@ -64,7 +61,7 @@ async def delete_hotel(hotel_id: int):
            summary="Частично изменить данные об отеле",
            description="<h1>Тут мы можем частично поменять данные об отеле: отправит либо name, либо title</h1>"
            )
-async def patch_hotel(hotel_id: int, hotel_data: HotelPATCH):
+async def patch_hotel(hotel_id: int, hotel_data: HotelPatch):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, exclude_unset=True, id=hotel_id)
         await session.commit()
