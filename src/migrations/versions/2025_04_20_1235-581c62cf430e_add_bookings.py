@@ -1,8 +1,8 @@
 """add bookings
 
-Revision ID: 4c926c1a14a9
-Revises: b0a5a3343e15
-Create Date: 2025-03-02 13:32:29.387476
+Revision ID: 581c62cf430e
+Revises: 3f68a886c324
+Create Date: 2025-04-20 12:35:56.318034
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "4c926c1a14a9"
-down_revision: Union[str, None] = "b0a5a3343e15"
+revision: str = "581c62cf430e"
+down_revision: Union[str, None] = "3f68a886c324"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

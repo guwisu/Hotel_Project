@@ -1,8 +1,8 @@
 """add rooms
 
-Revision ID: eeb303c893f1
-Revises: 8468a7a77ad9
-Create Date: 2025-02-05 17:15:16.324580
+Revision ID: 0a98228509e7
+Revises: 8cf5084f8731
+Create Date: 2025-04-20 12:27:13.350117
 
 """
 
@@ -13,8 +13,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "eeb303c893f1"
-down_revision: Union[str, None] = "8468a7a77ad9"
+revision: str = "0a98228509e7"
+down_revision: Union[str, None] = "8cf5084f8731"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
