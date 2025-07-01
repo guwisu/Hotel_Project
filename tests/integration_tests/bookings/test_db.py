@@ -1,10 +1,6 @@
 from datetime import date
 
-from platformdirs import user_state_dir
-
-from src.repositories.utils import rooms_ids_for_booking
 from src.schemas.bookings import BookingAdd
-from src.schemas.hotels import HotelAdd
 
 #CRUD CREATE READ UPDATE DELETE
 async def test_booking_crud(db):
@@ -17,11 +13,17 @@ async def test_booking_crud(db):
         date_to=date(year=2025, month=7, day=1),
         price = 1337,
     )
-    await db.bookings.add(booking_data)
+    new_booking = await db.bookings.add(booking_data)
 
-    assert db.bookings.get_one_or_none(user_id=user_id, room_id=room_id)
+    booking = await db.bookings.get_one_or_none(id=new_booking.id)
 
-    new_booking_data = BookingAdd(
+    assert booking
+    assert booking.id == new_booking.id
+    assert booking.room_id == new_booking.room_id
+    assert booking.user_id == new_booking.user_id
+
+
+    update_booking_data = BookingAdd(
         user_id=user_id,
         room_id=room_id,
         date_from=date(year=2025, month=7, day= 1),
@@ -29,8 +31,12 @@ async def test_booking_crud(db):
         price=525,
     )
 
-    await db.bookings.edit(new_booking_data)
+    await db.bookings.edit(update_booking_data, id=new_booking.id)
+    updated_booking = await db.bookings.get_one_or_none(id=new_booking.id)
+    assert updated_booking
+    assert updated_booking.id == new_booking.id
+    assert updated_booking.date_to != booking.date_to
 
-    #await db.bookings.delete(user_id=user_id, room_id=room_id)
-
-    await db.commit()
+    await db.bookings.delete(id=new_booking.id)
+    booking = await db.bookings.get_one_or_none(id=new_booking.id)
+    assert not booking

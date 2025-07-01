@@ -9,13 +9,13 @@ from src.tasks.tasks import test_task
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
-@router.get("/")
-@cache(expire=10)
+@router.get("")
+#@cache(expire=10)
 async def get_facilities(db: DBDep):
     print("Иду в бд")
     return await db.facilities.get_all()
 
-@router.post("/")
+@router.post("")
 async def add_facility(
         db: DBDep,
         facility_data: FacilityAdd = Body(),
