@@ -1,8 +1,6 @@
 import pytest
 from unittest import mock
 
-from wheel.metadata import yield_lines
-
 mock.patch("fastapi_cache.decorator.cache",  lambda *args, **kwargs: lambda f: f).start()
 
 from json import load
@@ -67,15 +65,14 @@ async def register_user(ac, setup_database):
             }
         )
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session")
 async def authenticated_ac(ac, register_user):
-    response = await ac.post(
+    await ac.post(
         "/auth/login",
         json={
             "email": "cat@dog.com",
             "password": "1234",
         }
     )
-    token = response.cookies.get("access_token")
-    assert token
+    assert ac.cookies["access_token"]
     yield ac

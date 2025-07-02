@@ -20,6 +20,7 @@ class RoomsRepository(BaseRepository):
             date_to: date,
     ):
         rooms_ids_to_get = rooms_ids_for_booking(date_from, date_to, hotel_id)
+
         query = (
             select(self.model)
             .options(selectinload(self.model.facilities))
