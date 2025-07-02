@@ -12,7 +12,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.api.dependencies import get_db
 from src.init import redis_manager
 from src.api.hotels import router as router_hotels
 from src.api.auth import router as router_auth
