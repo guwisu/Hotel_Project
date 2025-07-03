@@ -38,7 +38,7 @@ async def login_user(
     return {"access_token": access_token}
 
 
-@router.get("/get_me")
+@router.get("/me")
 async def get_me(
         db: DBDep,
         user_id: UserIdDep,
