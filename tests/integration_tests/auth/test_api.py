@@ -1,5 +1,4 @@
 import pytest
-from fastapi import HTTPException
 
 
 @pytest.mark.parametrize("email, password, status_code",[
