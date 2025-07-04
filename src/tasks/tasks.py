@@ -13,6 +13,7 @@ def test_task():
     sleep(5)
     print("найс поработал")
 
+
 # @celery_instance.task
 def resize_image(image_path: str):
     sizes = [1500, 1000, 500, 200]
@@ -24,7 +25,9 @@ def resize_image(image_path: str):
     name, ext = os.path.splitext(base_name)
 
     for size in sizes:
-        img_resized = img.resize((size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS)
+        img_resized = img.resize(
+            (size, int(img.height * (size / img.width))), Image.Resampling.LANCZOS
+        )
 
         new_file_name = f"{name}_{size}px{ext}"
 
@@ -33,6 +36,7 @@ def resize_image(image_path: str):
         img_resized.save(output_path)
 
         print(f"Изображение сохранено в размере: {size} в папке {output_folder}")
+
 
 async def get_bookings_with_today_checkin_helper():
     print("Функция началась")

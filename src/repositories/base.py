@@ -12,15 +12,13 @@ class BaseRepository:
         self.session = session
 
     async def get_filtered(self, *filter, **filter_by):
-        query = (
-            select(self.model)
-            .filter(*filter)
-            .filter_by(**filter_by)
-        )
+        query = select(self.model).filter(*filter).filter_by(**filter_by)
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_all(self,):
+    async def get_all(
+        self,
+    ):
         return await self.get_filtered()
 
     async def get_one_or_none(self, **filter_by):
@@ -50,15 +48,9 @@ class BaseRepository:
         await self.session.execute(update_stmt)
 
     async def edit_bulk(self, data: list[int], **filter_by) -> None:
-        update_stmt = (
-            update(self.model)
-            .filter_by(**filter_by)
-            .values([item for item in data])
-        )
+        update_stmt = update(self.model).filter_by(**filter_by).values([item for item in data])
         await self.session.execute(update_stmt)
 
     async def delete(self, **filter_by) -> None:
         delete_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_stmt)
-
-

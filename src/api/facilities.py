@@ -14,10 +14,11 @@ async def get_facilities(db: DBDep):
     # print("Иду в бд")
     return await db.facilities.get_all()
 
+
 @router.post("")
 async def add_facility(
-        db: DBDep,
-        facility_data: FacilityAdd = Body(),
+    db: DBDep,
+    facility_data: FacilityAdd = Body(),
 ):
     facility = await db.facilities.add(data=facility_data)
     await db.commit()

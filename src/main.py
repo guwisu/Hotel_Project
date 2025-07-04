@@ -23,13 +23,14 @@ from src.api.images import router as router_images
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    #При старте приложения
+    # При старте приложения
     await redis_manager.connect()
 
     FastAPICache.init(RedisBackend(redis_manager.redis), prefix="fastapi-cache")
     yield
     await redis_manager.close()
-    #При выключении/перезагрузке приложения
+    # При выключении/перезагрузке приложения
+
 
 app = FastAPI(docs_url=None, lifespan=lifespan)
 
