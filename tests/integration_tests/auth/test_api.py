@@ -8,7 +8,7 @@ import pytest
         ("example@test.com", "13123437", 200),
         ("abcde", "22421345", 422),
         ("abcde@abc", "1623487", 422),
-        ("dog@cat.com", "234123", 400),
+        ("dog@cat.com", "234123", 409),
         ("true@yandex.ru", "0923421", 200),
     ],
 )
