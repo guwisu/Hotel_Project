@@ -1,6 +1,11 @@
+from typing import Sequence
+
+
 from sqlalchemy import select, insert, update, delete
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from pydantic import BaseModel
 
+from src.exceptions import ObjectNotFoundException, UserAlreadyExistsException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -29,22 +34,50 @@ class BaseRepository:
             return None
         return self.mapper.map_to_domain_entity(model)
 
-    async def add(self, data: BaseModel):
-        add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
-        result = await self.session.execute(add_data_stmt)
-        model = result.scalars().one()
+    async def get_one(self, **filter_by) -> BaseModel:
+        "asyncpg.exceptions.DataError"
+        "sqlalchemy.dialects.postgresql.asyncpg.Error"
+        "sqlalchemy.exc.DBAPIError"
+        "sqlalchemy.exc.NoResultFound"
+        query = select(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        try:
+            model = result.scalars().one()
+        except NoResultFound:
+            raise ObjectNotFoundException
         return self.mapper.map_to_domain_entity(model)
 
-    async def add_bulk(self, data: list[BaseModel]):
+    async def add(self, data: BaseModel):
+        try:
+            add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+            result = await self.session.execute(add_data_stmt)
+            model = result.scalars().one()
+        except IntegrityError:
+            raise ObjectNotFoundException
+        return self.mapper.map_to_domain_entity(model)
+
+    async def add_user(self, data: BaseModel):
+        try:
+            add_data_stmt = insert(self.model).values(**data.model_dump()).returning(self.model)
+            result = await self.session.execute(add_data_stmt)
+            model = result.scalars().one()
+        except IntegrityError:
+            raise UserAlreadyExistsException
+        return self.mapper.map_to_domain_entity(model)
+
+    async def add_bulk(self, data: Sequence[BaseModel]):
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
         await self.session.execute(add_data_stmt)
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
-        update_stmt = (
-            update(self.model)
-            .filter_by(**filter_by)
-            .values(**data.model_dump(exclude_unset=exclude_unset))
-        )
+        try:
+            update_stmt = (
+                update(self.model)
+                .filter_by(**filter_by)
+                .values(**data.model_dump(exclude_unset=exclude_unset))
+            )
+        except NoResultFound:
+            raise ObjectNotFoundException
         await self.session.execute(update_stmt)
 
     async def edit_bulk(self, data: list[int], **filter_by) -> None:
@@ -52,5 +85,8 @@ class BaseRepository:
         await self.session.execute(update_stmt)
 
     async def delete(self, **filter_by) -> None:
-        delete_stmt = delete(self.model).filter_by(**filter_by)
+        try:
+            delete_stmt = delete(self.model).filter_by(**filter_by)
+        except NoResultFound:
+            raise ObjectNotFoundException
         await self.session.execute(delete_stmt)
