@@ -40,7 +40,7 @@ async def create_room(
         room_data: RoomAddRequest = Body()
 ):
     try:
-        room = RoomService(db).create_room(hotel_id, room_data)
+        room = await RoomService(db).create_room(hotel_id, room_data)
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
 

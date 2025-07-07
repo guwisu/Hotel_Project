@@ -44,6 +44,8 @@ class UserEmailAlreadyExistsException(SnapBookException):
 class UserAlreadyExistsException(SnapBookException):
     detail = "Пользователь уже существует"
 
+class EmailNotRegisteredException(SnapBookException):
+    detail = "Пользователь с таким email не зарегистрирован"
 
 def check_date_to_after_date_from(date_from:date, date_to: date) -> None:
     if date_from >= date_to:
@@ -78,12 +80,22 @@ class UserEmailAlreadyExistsHTTPException(SnapBookHTTPException):
     detail = "Пользователь с такой почтой уже существует"
 
 
-class IncorrectTokenHTTPException(SnapBookException):
+class EmailNotRegisteredHTTPException(SnapBookHTTPException):
+    status_code = 401
+    detail = "Пользователь с таким email не зарегистрирован"
+
+
+class IncorrectTokenHTTPException(SnapBookHTTPException):
     detail = "Некорректный токен"
 
 
-class IncorrectPasswordHTTPException(SnapBookException):
+class IncorrectPasswordHTTPException(SnapBookHTTPException):
     status_code = 401
     detail = "Пароль неверный"
+
+
+class NoAccessTokenHTTPException(SnapBookHTTPException):
+    status_code = 401
+    detail = "Вы не предоставили токен доступа"
 
 

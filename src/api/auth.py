@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.exceptions import UserEmailAlreadyExistsHTTPException, UserAlreadyExistsException
+from src.exceptions import UserEmailAlreadyExistsHTTPException, UserAlreadyExistsException, EmailNotRegisteredException, \
+    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException
 
 from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService
@@ -27,7 +28,12 @@ async def login_user(
     data: UserRequestAdd,
     response: Response,
 ):
-    access_token = await AuthService(db).login_user(data, response)
+    try:
+        access_token = await AuthService(db).login_user(data, response)
+    except EmailNotRegisteredException:
+        raise EmailNotRegisteredHTTPException
+    except IncorrectPasswordException:
+        raise IncorrectPasswordHTTPException
     return {"access_token": access_token}
 
 

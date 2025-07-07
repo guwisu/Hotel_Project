@@ -1,5 +1,5 @@
 from src.api.dependencies import UserIdDep
-from src.exceptions import AllRoomsAreBookedException
+from src.exceptions import AllRoomsAreBookedException, check_date_to_after_date_from
 from src.schemas.bookings import BookingAddRequest, BookingAdd
 from src.services.base import BaseService
 from src.services.hotels import HotelService
@@ -18,6 +18,7 @@ class BookingService(BaseService):
             user_id: UserIdDep,
             booking_data: BookingAddRequest,
     ):
+        check_date_to_after_date_from(booking_data.date_from, booking_data.date_to)
         room = await RoomService(self.db).get_room_with_check(booking_data.room_id)
         hotel = await HotelService(self.db).get_hotel_with_check(room.hotel_id)
         room_price: int = room.price
