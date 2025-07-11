@@ -4,7 +4,8 @@ from fastapi import Depends, Query, HTTPException, Request
 from pydantic import BaseModel
 
 from src.database import async_session_maker
-from src.exceptions import IncorrectTokenException, IncorrectTokenHTTPException, NoAccessTokenHTTPException
+from src.exceptions import IncorrectTokenException, IncorrectTokenHTTPException, NoAccessTokenHTTPException, \
+    NoAccessTokenException
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
 

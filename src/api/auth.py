@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Response, Request
 
 from src.api.dependencies import UserIdDep, DBDep
 from src.exceptions import UserEmailAlreadyExistsHTTPException, UserAlreadyExistsException, EmailNotRegisteredException, \
-    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException
+    EmailNotRegisteredHTTPException, IncorrectPasswordException, IncorrectPasswordHTTPException, \
+    NoPasswordHTTPException, NoPasswordException, UserNotAuthenticatedException, UserNotAuthenticatedHTTPException
 
 from src.schemas.users import UserRequestAdd
 from src.services.auth import AuthService
@@ -17,6 +18,8 @@ async def register_user(
 ):
     try:
         await AuthService(db).register_user(data)
+    except NoPasswordException:
+        raise NoPasswordHTTPException
     except UserAlreadyExistsException:
         raise UserEmailAlreadyExistsHTTPException
     return {"status": "OK"}
@@ -46,6 +49,9 @@ async def get_me(
 
 
 @router.post("/logout")
-async def logout(response: Response):
-    await AuthService().logout(response)
+async def logout(response: Response, request: Request):
+    try:
+        await AuthService().logout(response, request)
+    except UserNotAuthenticatedException:
+        raise UserNotAuthenticatedHTTPException
     return {"status": "OK"}

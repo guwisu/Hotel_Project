@@ -1,14 +1,12 @@
 from datetime import datetime, timezone, timedelta
 
 import jwt
-from fastapi import Response
-
+from fastapi import Response, Request
 from passlib.context import CryptContext
-
 
 from src.config import settings
 from src.exceptions import ObjectAlreadyExistsException, IncorrectTokenException, IncorrectPasswordException, \
-    UserAlreadyExistsException
+    UserAlreadyExistsException, NoPasswordException, UserNotAuthenticatedException
 from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
 
@@ -43,6 +41,8 @@ class AuthService(BaseService):
             self,
             data: UserRequestAdd,
     ):
+        if not data.password:
+            raise NoPasswordException
         hashed_password = AuthService().hash_password(data.password)
         new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
         try:
@@ -72,5 +72,7 @@ class AuthService(BaseService):
     ):
         return await self.db.users.get_one_or_none(id=user_id)
 
-    async def logout(self, response: Response):
+    async def logout(self, response: Response, request: Request):
+        if not request.cookies.get("access_token", None):
+            raise UserNotAuthenticatedException
         response.delete_cookie("access_token")

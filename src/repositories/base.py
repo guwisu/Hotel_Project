@@ -22,9 +22,7 @@ class BaseRepository:
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_all(
-        self,
-    ):
+    async def get_all(self):
         return await self.get_filtered()
 
     async def get_one_or_none(self, **filter_by):
@@ -36,10 +34,6 @@ class BaseRepository:
         return self.mapper.map_to_domain_entity(model)
 
     async def get_one(self, **filter_by) -> BaseModel:
-        "asyncpg.exceptions.DataError"
-        "sqlalchemy.dialects.postgresql.asyncpg.Error"
-        "sqlalchemy.exc.DBAPIError"
-        "sqlalchemy.exc.NoResultFound"
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         try:
@@ -67,19 +61,25 @@ class BaseRepository:
                 raise ex
 
     async def add_bulk(self, data: Sequence[BaseModel]):
-        add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
-        await self.session.execute(add_data_stmt)
-
-    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
+        try:
+            add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
+            await self.session.execute(add_data_stmt)
+        except IntegrityError:
+            raise ObjectNotFoundException
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         try:
             update_stmt = (
                 update(self.model)
                 .filter_by(**filter_by)
                 .values(**data.model_dump(exclude_unset=exclude_unset))
+                .returning(self.model)
             )
         except NoResultFound:
             raise ObjectNotFoundException
-        await self.session.execute(update_stmt)
+        result = await self.session.execute(update_stmt)
+        model = result.scalars().one()
+        return self.mapper.map_to_domain_entity(model)
+
 
     async def edit_bulk(self, data: list[int], **filter_by) -> None:
         update_stmt = update(self.model).filter_by(**filter_by).values([item for item in data])
