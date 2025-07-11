@@ -4,8 +4,15 @@ from fastapi import Query, Body, APIRouter
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import PaginationDep, DBDep
-from src.exceptions import ObjectNotFoundException, HotelNotFoundHTTPException, HotelAlreadyExistsException, \
-    HotelAlreadyExistsHTTPException, HotelEmptyDataException, HotelEmptyDataHTTPException, HotelNotFoundException
+from src.exceptions import (
+    ObjectNotFoundException,
+    HotelNotFoundHTTPException,
+    HotelAlreadyExistsException,
+    HotelAlreadyExistsHTTPException,
+    HotelEmptyDataException,
+    HotelEmptyDataHTTPException,
+    HotelNotFoundException,
+)
 from src.schemas.hotels import HotelPatch, HotelAdd
 from src.services.hotels import HotelService
 
@@ -15,6 +22,7 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 @router.get("/all", summary="Просто получить все отели")
 async def get_all_hotels(db: DBDep):
     return await HotelService(db).get_hotels()
+
 
 @router.get(
     "",
@@ -99,7 +107,9 @@ async def delete_hotel(db: DBDep, hotel_id: int):
 )
 async def patch_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPatch):
     try:
-        hotel = await HotelService(db).edit_hotel_partially(hotel_id, hotel_data, exclude_unset=True)
+        hotel = await HotelService(db).edit_hotel_partially(
+            hotel_id, hotel_data, exclude_unset=True
+        )
         return {"status": "OK", "data": hotel}
     except HotelEmptyDataException:
         raise HotelEmptyDataHTTPException
@@ -110,8 +120,8 @@ async def patch_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPatch):
 @router.put("/{hotel_id}", summary="Изменить данные об отеле")
 async def edit_hotel(db: DBDep, hotel_id: int, hotel_data: HotelPatch):
     try:
-         hotel = await HotelService(db).edit_hotel(hotel_id, hotel_data)
-         return {"status": "OK", "data": hotel}
+        hotel = await HotelService(db).edit_hotel(hotel_id, hotel_data)
+        return {"status": "OK", "data": hotel}
     except HotelEmptyDataException:
         raise HotelEmptyDataHTTPException
     except HotelNotFoundException:

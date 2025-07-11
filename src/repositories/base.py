@@ -49,9 +49,7 @@ class BaseRepository:
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
         except IntegrityError as ex:
-            logging.exception(
-                f"Не удалось добавить данные в БД, входные данные={data}"
-            )
+            logging.exception(f"Не удалось добавить данные в БД, входные данные={data}")
             if isinstance(ex.orig.__cause__, UniqueViolationError):
                 raise ObjectAlreadyExistsException from ex
             else:
@@ -66,6 +64,7 @@ class BaseRepository:
             await self.session.execute(add_data_stmt)
         except IntegrityError:
             raise ObjectNotFoundException
+
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by):
         try:
             update_stmt = (
@@ -79,7 +78,6 @@ class BaseRepository:
         result = await self.session.execute(update_stmt)
         model = result.scalars().one()
         return self.mapper.map_to_domain_entity(model)
-
 
     async def edit_bulk(self, data: list[int], **filter_by) -> None:
         update_stmt = update(self.model).filter_by(**filter_by).values([item for item in data])

@@ -5,8 +5,14 @@ from fastapi import Response, Request
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import ObjectAlreadyExistsException, IncorrectTokenException, IncorrectPasswordException, \
-    UserAlreadyExistsException, NoPasswordException, UserNotAuthenticatedException
+from src.exceptions import (
+    ObjectAlreadyExistsException,
+    IncorrectTokenException,
+    IncorrectPasswordException,
+    UserAlreadyExistsException,
+    NoPasswordException,
+    UserNotAuthenticatedException,
+)
 from src.schemas.users import UserRequestAdd, UserAdd
 from src.services.base import BaseService
 
@@ -38,8 +44,8 @@ class AuthService(BaseService):
             raise IncorrectTokenException
 
     async def register_user(
-            self,
-            data: UserRequestAdd,
+        self,
+        data: UserRequestAdd,
     ):
         if not data.password:
             raise NoPasswordException
@@ -52,9 +58,9 @@ class AuthService(BaseService):
             raise UserAlreadyExistsException from ex
 
     async def login_user(
-            self,
-            data: UserRequestAdd,
-            response: Response,
+        self,
+        data: UserRequestAdd,
+        response: Response,
     ):
         user = await self.db.users.get_user_with_hashed_password(email=data.email)
         if not user:
@@ -67,8 +73,8 @@ class AuthService(BaseService):
         return access_token
 
     async def get_me(
-            self,
-            user_id,
+        self,
+        user_id,
     ):
         return await self.db.users.get_one_or_none(id=user_id)
 

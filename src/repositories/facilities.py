@@ -19,7 +19,9 @@ class RoomsFacilitiesRepository(BaseRepository):
 
     async def set_room_facilities(self, room_id: int, facilities_ids: list[int]) -> None:
         try:
-            get_current_facilities_ids_query = select(self.model.facility_id).filter_by(room_id=room_id)
+            get_current_facilities_ids_query = select(self.model.facility_id).filter_by(
+                room_id=room_id
+            )
             res = await self.session.execute(get_current_facilities_ids_query)
             current_facilities_ids: list[int] = res.scalars().all()
             ids_to_remove = list(set(current_facilities_ids) - set(facilities_ids))

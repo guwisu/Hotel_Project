@@ -2,8 +2,13 @@ from datetime import date
 
 from sqlalchemy.exc import NoResultFound
 
-from src.exceptions import check_date_to_after_date_from, HotelNotFoundException, ObjectNotFoundException, \
-    HotelAlreadyExistsException, HotelEmptyDataException
+from src.exceptions import (
+    check_date_to_after_date_from,
+    HotelNotFoundException,
+    ObjectNotFoundException,
+    HotelAlreadyExistsException,
+    HotelEmptyDataException,
+)
 from src.schemas.hotels import HotelAdd, HotelPatch, Hotel
 from src.services.base import BaseService
 
@@ -14,8 +19,8 @@ class HotelService(BaseService):
         pagination,
         location: str | None,
         title: str | None,
-        date_from: date ,
-        date_to: date ,
+        date_from: date,
+        date_to: date,
     ):
         check_date_to_after_date_from(date_from, date_to)
         per_page = pagination.per_page or 5
@@ -51,9 +56,9 @@ class HotelService(BaseService):
         await self.db.hotels.delete(id=hotel_id)
         await self.db.commit()
 
-
-
-    async def edit_hotel_partially(self, hotel_id: int, hotel_data: HotelPatch, exclude_unset: bool):
+    async def edit_hotel_partially(
+        self, hotel_id: int, hotel_data: HotelPatch, exclude_unset: bool
+    ):
         if not hotel_data.title and not hotel_data.location:
             raise HotelEmptyDataException
         try:
@@ -62,7 +67,6 @@ class HotelService(BaseService):
             return hotel
         except NoResultFound:
             raise HotelNotFoundException
-
 
     async def edit_hotel(self, hotel_id: int, hotel_data: HotelPatch):
         if not hotel_data.title or not hotel_data.location:
@@ -79,4 +83,3 @@ class HotelService(BaseService):
             return await self.db.hotels.get_one(id=hotel_id)
         except ObjectNotFoundException:
             raise HotelNotFoundException
-

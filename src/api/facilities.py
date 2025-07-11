@@ -2,8 +2,12 @@ from fastapi import APIRouter, Body
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
-from src.exceptions import FacilityAlreadyExistsException, FacilityAlreadyExistsHTTPException, \
-    FacilityEmptyDataException, FacilityEmptyDataHTTPException
+from src.exceptions import (
+    FacilityAlreadyExistsException,
+    FacilityAlreadyExistsHTTPException,
+    FacilityEmptyDataException,
+    FacilityEmptyDataHTTPException,
+)
 from src.schemas.facilities import FacilityAdd
 from src.services.facilities import FacilityService
 
@@ -14,6 +18,7 @@ router = APIRouter(prefix="/facilities", tags=["Удобства"])
 @cache(expire=10)
 async def get_facilities(db: DBDep):
     return await FacilityService(db).get_facilities()
+
 
 @router.post("")
 async def add_facility(
