@@ -20,7 +20,7 @@ Lint:
 Format:
   stage: lint_format
   script:
-    - docker run --rm --network myNetwork booking-api-image ruff format
+    - docker run --rm --network myNetwork booking-api-image ruff format --check
 
 Migrations:
   stage: migrations
