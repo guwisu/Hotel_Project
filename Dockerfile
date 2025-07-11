@@ -5,7 +5,13 @@ WORKDIR /app
 RUN echo ls
 
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+#RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir --no-deps -r requirements.txt && \
+    pip cache purge && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
 
 COPY . .
 

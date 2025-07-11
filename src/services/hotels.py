@@ -54,7 +54,7 @@ class HotelService(BaseService):
 
 
     async def edit_hotel_partially(self, hotel_id: int, hotel_data: HotelPatch, exclude_unset: bool):
-        if not hotel_data.title or not hotel_data.location:
+        if not hotel_data.title and not hotel_data.location:
             raise HotelEmptyDataException
         try:
             hotel = await self.db.hotels.edit(hotel_data, exclude_unset, id=hotel_id)
